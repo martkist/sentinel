@@ -5,11 +5,20 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "sentinel.py",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/bin/sentinel.py",
+            "console": "integratedTerminal"
+        },
+        {
             "name": "py.test",
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/venv/bin/py.test",
-            "args": ["${workspaceFolder}/test"],
+            "args": [
+                "${workspaceFolder}/test"
+            ],
             "console": "integratedTerminal"
         }
     ]
