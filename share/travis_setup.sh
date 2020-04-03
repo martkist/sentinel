@@ -1,9 +1,9 @@
 #!/bin/bash
 set -evx
 
-mkdir ~/.syscoincore
+mkdir ~/.martkistcore
 
 # safety check
-if [ ! -f ~/.syscoincore/.syscoin.conf ]; then
-  cp share/syscoin.conf.example ~/.syscoincore/syscoin.conf
+if [ ! -f ~/.martkistcore/.martkist.conf ]; then
+  cp share/martkist.conf.example ~/.martkistcore/martkist.conf
 fi

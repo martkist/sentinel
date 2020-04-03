@@ -8,30 +8,30 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'lib'))
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 import config
 
-from syscoind import SyscoinDaemon
-from syscoin_config import SyscoinConfig
+from martkistd import MartkistDaemon
+from martkist_config import MartkistConfig
 
 
-def test_syscoind():
-    config_text = SyscoinConfig.slurp_config_file(config.syscoin_conf)
+def test_martkistd():
+    config_text = MartkistConfig.slurp_config_file(config.martkist_conf)
     network = 'mainnet'
     is_testnet = False
-    genesis_hash = u'000006e5c08d6d2414435b294210266753b05a75f90e926dd5e6082306812622'
+    genesis_hash = u'00000a7f5622e1499ea8649f89c033973b9d5f4b96715ba21858af6234c7cc32'
     for line in config_text.split("\n"):
         if line.startswith('testnet=1'):
             network = 'testnet'
             is_testnet = True
-            genesis_hash = u'00000478aace753a4709f7503b5b583456a5a8635e989d7f899eb000bbea9fd4'
+            genesis_hash = u'00000a7f5622e1499ea8649f89c033973b9d5f4b96715ba21858af6234c7cc32'
 
-    creds = SyscoinConfig.get_rpc_creds(config_text, network)
-    syscoind = SyscoinDaemon(**creds)
-    assert syscoind.rpc_command is not None
+    creds = MartkistConfig.get_rpc_creds(config_text, network)
+    martkistd = MartkistDaemon(**creds)
+    assert martkistd.rpc_command is not None
 
-    assert hasattr(syscoind, 'rpc_connection')
+    assert hasattr(martkistd, 'rpc_connection')
 
-    # Syscoin testnet block 0 hash == 00000bafbc94add76cb75e2ec92894837288a481e5c005f6563d91623bf8bc2c
+    # Martkist testnet block 0 hash == 00000bafbc94add76cb75e2ec92894837288a481e5c005f6563d91623bf8bc2c
     # test commands without arguments
-    info = syscoind.rpc_command('getinfo')
+    info = martkistd.rpc_command('getinfo')
     info_keys = [
         'blocks',
         'connections',
@@ -48,4 +48,4 @@ def test_syscoind():
     assert info['testnet'] is is_testnet
 
     # test commands with args
-    assert syscoind.rpc_command('getblockhash', 0) == genesis_hash
+    assert martkistd.rpc_command('getblockhash', 0) == genesis_hash

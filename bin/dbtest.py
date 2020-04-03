@@ -9,17 +9,17 @@ import config
 from models import Superblock, Proposal, GovernanceObject, Setting, Signal, Vote, Outcome
 from models import VoteSignals, VoteOutcomes
 from peewee import PeeweeException  # , OperationalError, IntegrityError
-from syscoind import SyscoinDaemon
-import syscoinlib
+from martkistd import MartkistDaemon
+import martkistlib
 from decimal import Decimal
-syscoind = SyscoinDaemon.from_syscoin_conf(config.syscoin_conf)
+martkistd = MartkistDaemon.from_martkist_conf(config.martkist_conf)
 import misc
 # ==============================================================================
 # do stuff here
 
 pr = Proposal(
     name='proposal7',
-    url='https://syscoincentral.com/proposal7',
+    url='https://martkistcentral.com/proposal7',
     payment_address='yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV',
     payment_amount=39.23,
     start_epoch=1483250400,
@@ -33,13 +33,13 @@ pr = Proposal(
 # )
 
 
-# TODO: make this a test, mock 'syscoind' and tie a test block height to a
+# TODO: make this a test, mock 'martkistd' and tie a test block height to a
 # timestamp, ensure only unit testing a within_window method
 #
 # also, create the `within_window` or similar method & use that.
 #
 bh = 131112
-bh_epoch = syscoind.block_height_to_epoch(bh)
+bh_epoch = martkistd.block_height_to_epoch(bh)
 
 fudge = 72000
 window_start = 1483689082 - fudge
@@ -56,7 +56,7 @@ else:
     print("Within window, we're good!")
 
 # pdb.set_trace()
-# syscoind.get_object_list()
+# martkistd.get_object_list()
 # ==============================================================================
 # pdb.set_trace()
 1

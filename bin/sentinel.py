@@ -5,7 +5,7 @@ sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../lib
 import init
 import config
 import misc
-from syscoind import SyscoinDaemon
+from martkistd import MartkistDaemon
 from models import Superblock, Proposal, GovernanceObject
 from models import VoteSignals, VoteOutcomes, Transient
 import socket
@@ -19,30 +19,30 @@ from scheduler import Scheduler
 import argparse
 
 
-# sync syscoind gobject list with our local relational DB backend
-def perform_syscoind_object_sync(syscoind):
-    GovernanceObject.sync(syscoind)
+# sync martkistd gobject list with our local relational DB backend
+def perform_martkistd_object_sync(martkistd):
+    GovernanceObject.sync(martkistd)
 
 
-def prune_expired_proposals(syscoind):
+def prune_expired_proposals(martkistd):
     # vote delete for old proposals
-    for proposal in Proposal.expired(syscoind.superblockcycle()):
-        proposal.vote(syscoind, VoteSignals.delete, VoteOutcomes.yes)
+    for proposal in Proposal.expired(martkistd.superblockcycle()):
+        proposal.vote(martkistd, VoteSignals.delete, VoteOutcomes.yes)
 
 
-# ping syscoind
-def sentinel_ping(syscoind):
+# ping martkistd
+def sentinel_ping(martkistd):
     printdbg("in sentinel_ping")
 
-    syscoind.ping()
+    martkistd.ping()
 
     printdbg("leaving sentinel_ping")
 
 
-def attempt_superblock_creation(syscoind):
-    import syscoinlib
+def attempt_superblock_creation(martkistd):
+    import martkistlib
 
-    if not syscoind.is_masternode():
+    if not martkistd.is_masternode():
         print("We are not a Masternode... can't submit superblocks!")
         return
 
@@ -53,7 +53,7 @@ def attempt_superblock_creation(syscoind):
     # has this masternode voted on *any* superblocks at the given event_block_height?
     # have we voted FUNDING=YES for a superblock for this specific event_block_height?
 
-    event_block_height = syscoind.next_superblock_height()
+    event_block_height = martkistd.next_superblock_height()
 
     if Superblock.is_voted_funding(event_block_height):
         # printdbg("ALREADY VOTED! 'til next time!")
@@ -61,21 +61,21 @@ def attempt_superblock_creation(syscoind):
         # vote down any new SBs because we've already chosen a winner
         for sb in Superblock.at_height(event_block_height):
             if not sb.voted_on(signal=VoteSignals.funding):
-                sb.vote(syscoind, VoteSignals.funding, VoteOutcomes.no)
+                sb.vote(martkistd, VoteSignals.funding, VoteOutcomes.no)
 
         # now return, we're done
         return
 
-    if not syscoind.is_govobj_maturity_phase():
+    if not martkistd.is_govobj_maturity_phase():
         printdbg("Not in maturity phase yet -- will not attempt Superblock")
         return
 
-    proposals = Proposal.approved_and_ranked(proposal_quorum=syscoind.governance_quorum(), next_superblock_max_budget=syscoind.next_superblock_max_budget())
-    budget_max = syscoind.get_superblock_budget_allocation(event_block_height)
-    sb_epoch_time = syscoind.block_height_to_epoch(event_block_height)
+    proposals = Proposal.approved_and_ranked(proposal_quorum=martkistd.governance_quorum(), next_superblock_max_budget=martkistd.next_superblock_max_budget())
+    budget_max = martkistd.get_superblock_budget_allocation(event_block_height)
+    sb_epoch_time = martkistd.block_height_to_epoch(event_block_height)
 
-    maxgovobjdatasize = syscoind.govinfo['maxgovobjdatasize']
-    sb = syscoinlib.create_superblock(proposals, event_block_height, budget_max, sb_epoch_time, maxgovobjdatasize)
+    maxgovobjdatasize = martkistd.govinfo['maxgovobjdatasize']
+    sb = martkistlib.create_superblock(proposals, event_block_height, budget_max, sb_epoch_time, maxgovobjdatasize)
     if not sb:
         printdbg("No superblock created, sorry. Returning.")
         return
@@ -83,12 +83,12 @@ def attempt_superblock_creation(syscoind):
     # find the deterministic SB w/highest object_hash in the DB
     dbrec = Superblock.find_highest_deterministic(sb.hex_hash())
     if dbrec:
-        dbrec.vote(syscoind, VoteSignals.funding, VoteOutcomes.yes)
+        dbrec.vote(martkistd, VoteSignals.funding, VoteOutcomes.yes)
 
         # any other blocks which match the sb_hash are duplicates, delete them
         for sb in Superblock.select().where(Superblock.sb_hash == sb.hex_hash()):
             if not sb.voted_on(signal=VoteSignals.funding):
-                sb.vote(syscoind, VoteSignals.delete, VoteOutcomes.yes)
+                sb.vote(martkistd, VoteSignals.delete, VoteOutcomes.yes)
 
         printdbg("VOTED FUNDING FOR SB! We're done here 'til next superblock cycle.")
         return
@@ -96,24 +96,24 @@ def attempt_superblock_creation(syscoind):
         printdbg("The correct superblock wasn't found on the network...")
 
     # if we are the elected masternode...
-    if (syscoind.we_are_the_winner()):
+    if (martkistd.we_are_the_winner()):
         printdbg("we are the winner! Submit SB to network")
-        sb.submit(syscoind)
+        sb.submit(martkistd)
 
 
-def check_object_validity(syscoind):
+def check_object_validity(martkistd):
     # vote (in)valid objects
     for gov_class in [Proposal, Superblock]:
         for obj in gov_class.select():
-            obj.vote_validity(syscoind)
+            obj.vote_validity(martkistd)
 
 
-def is_syscoind_port_open(syscoind):
+def is_martkistd_port_open(martkistd):
     # test socket open before beginning, display instructive message to MN
     # operators if it's not
     port_open = False
     try:
-        info = syscoind.rpc_command('getgovernanceinfo')
+        info = martkistd.rpc_command('getgovernanceinfo')
         port_open = True
     except (socket.error, JSONRPCException) as e:
         print("%s" % e)
@@ -122,21 +122,21 @@ def is_syscoind_port_open(syscoind):
 
 
 def main():
-    syscoind = SyscoinDaemon.from_syscoin_conf(config.syscoin_conf)
+    martkistd = MartkistDaemon.from_martkist_conf(config.martkist_conf)
     options = process_args()
 
-    # check syscoind connectivity
-    if not is_syscoind_port_open(syscoind):
-        print("Cannot connect to syscoind. Please ensure syscoind is running and the JSONRPC port is open to Sentinel.")
+    # check martkistd connectivity
+    if not is_martkistd_port_open(martkistd):
+        print("Cannot connect to martkistd. Please ensure martkistd is running and the JSONRPC port is open to Sentinel.")
         return
 
-    # check syscoind sync
-    if not syscoind.is_synced():
-        print("syscoind not synced with network! Awaiting full sync before running Sentinel.")
+    # check martkistd sync
+    if not martkistd.is_synced():
+        print("martkistd not synced with network! Awaiting full sync before running Sentinel.")
         return
 
     # ensure valid masternode
-    if not syscoind.is_masternode():
+    if not martkistd.is_masternode():
         print("Invalid Masternode Status, cannot continue.")
         return
 
@@ -168,19 +168,19 @@ def main():
     # ========================================================================
     #
     # load "gobject list" rpc command data, sync objects into internal database
-    perform_syscoind_object_sync(syscoind)
+    perform_martkistd_object_sync(martkistd)
 
-    if syscoind.has_sentinel_ping:
-        sentinel_ping(syscoind)
+    if martkistd.has_sentinel_ping:
+        sentinel_ping(martkistd)
 
     # auto vote network objects as valid/invalid
-    # check_object_validity(syscoind)
+    # check_object_validity(martkistd)
 
     # vote to delete expired proposals
-    prune_expired_proposals(syscoind)
+    prune_expired_proposals(martkistd)
 
     # create a Superblock if necessary
-    attempt_superblock_creation(syscoind)
+    attempt_superblock_creation(martkistd)
 
     # schedule the next run
     Scheduler.schedule_next_run()

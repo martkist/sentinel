@@ -3,30 +3,30 @@
 """
 import sys
 import os
-from syscoin_config import SyscoinConfig
+from martkist_config import MartkistConfig
 
 default_sentinel_config = os.path.normpath(
     os.path.join(os.path.dirname(__file__), '../sentinel.conf')
 )
 sentinel_config_file = os.environ.get('SENTINEL_CONFIG', default_sentinel_config)
-sentinel_cfg = SyscoinConfig.tokenize(sentinel_config_file)
+sentinel_cfg = MartkistConfig.tokenize(sentinel_config_file)
 sentinel_version = "1.1.1"
-min_syscoind_proto_version_with_sentinel_ping = 70221
+min_martkistd_proto_version_with_sentinel_ping = 70221
 
 
-def get_syscoin_conf():
+def get_martkist_conf():
     if sys.platform == 'win32':
-        syscoin_conf = os.path.join(os.getenv('APPDATA'), "SyscoinCore/syscoin.conf")
+        martkist_conf = os.path.join(os.getenv('APPDATA'), "MartkistCore/martkist.conf")
     else:
         home = os.environ.get('HOME')
 
-        syscoin_conf = os.path.join(home, ".syscoincore/syscoin.conf")
+        martkist_conf = os.path.join(home, ".martkistcore/martkist.conf")
         if sys.platform == 'darwin':
-            syscoin_conf = os.path.join(home, "Library/Application Support/SyscoinCore/syscoin.conf")
+            martkist_conf = os.path.join(home, "Library/Application Support/MartkistCore/martkist.conf")
 
-    syscoin_conf = sentinel_cfg.get('syscoin_conf', syscoin_conf)
+    martkist_conf = sentinel_cfg.get('martkist_conf', martkist_conf)
 
-    return syscoin_conf
+    return martkist_conf
 
 
 def get_network():
@@ -86,7 +86,7 @@ def get_db_conn():
     return db
 
 
-syscoin_conf = get_syscoin_conf()
+martkist_conf = get_martkist_conf()
 network = get_network()
 rpc_host = get_rpchost()
 db = get_db_conn()

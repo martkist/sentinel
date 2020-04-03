@@ -6,13 +6,13 @@ os.environ['SENTINEL_CONFIG'] = os.path.normpath(os.path.join(os.path.dirname(__
 os.environ['SENTINEL_ENV'] = 'test'
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../lib')))
 import config
-from syscoin_config import SyscoinConfig
+from martkist_config import MartkistConfig
 
 
 @pytest.fixture
-def syscoin_conf(**kwargs):
+def martkist_conf(**kwargs):
     defaults = {
-        'rpcuser': 'syscoinrpc',
+        'rpcuser': 'martkistrpc',
         'rpcpassword': 'EwJeV3fZTyTVozdECF627BkBMnNDwQaVLakG3A4wXYyk',
         'rpcport': 29241,
     }
@@ -34,35 +34,35 @@ rpcport={rpcport}
 
 
 def test_get_rpc_creds():
-    syscoin_config = syscoin_conf()
-    creds = SyscoinConfig.get_rpc_creds(syscoin_config, 'testnet')
+    martkist_config = martkist_conf()
+    creds = MartkistConfig.get_rpc_creds(martkist_config, 'testnet')
 
     for key in ('user', 'password', 'port'):
         assert key in creds
-    assert creds.get('user') == 'syscoinrpc'
+    assert creds.get('user') == 'martkistrpc'
     assert creds.get('password') == 'EwJeV3fZTyTVozdECF627BkBMnNDwQaVLakG3A4wXYyk'
     assert creds.get('port') == 29241
 
-    syscoin_config = syscoin_conf(rpcpassword='s00pers33kr1t', rpcport=8000)
-    creds = SyscoinConfig.get_rpc_creds(syscoin_config, 'testnet')
+    martkist_config = martkist_conf(rpcpassword='s00pers33kr1t', rpcport=8000)
+    creds = MartkistConfig.get_rpc_creds(martkist_config, 'testnet')
 
     for key in ('user', 'password', 'port'):
         assert key in creds
-    assert creds.get('user') == 'syscoinrpc'
+    assert creds.get('user') == 'martkistrpc'
     assert creds.get('password') == 's00pers33kr1t'
     assert creds.get('port') == 8000
 
-    no_port_specified = re.sub('\nrpcport=.*?\n', '\n', syscoin_conf(), re.M)
-    creds = SyscoinConfig.get_rpc_creds(no_port_specified, 'testnet')
+    no_port_specified = re.sub('\nrpcport=.*?\n', '\n', martkist_conf(), re.M)
+    creds = MartkistConfig.get_rpc_creds(no_port_specified, 'testnet')
 
     for key in ('user', 'password', 'port'):
         assert key in creds
-    assert creds.get('user') == 'syscoinrpc'
+    assert creds.get('user') == 'martkistrpc'
     assert creds.get('password') == 'EwJeV3fZTyTVozdECF627BkBMnNDwQaVLakG3A4wXYyk'
-    assert creds.get('port') == 18370
+    assert creds.get('port') == 14041
 
 
-# ensure syscoin network (mainnet, testnet) matches that specified in config
-# requires running syscoind on whatever port specified...
+# ensure martkist network (mainnet, testnet) matches that specified in config
+# requires running martkistd on whatever port specified...
 #
-# This is more of a syscoind/jsonrpc test than a config test...
+# This is more of a martkistd/jsonrpc test than a config test...

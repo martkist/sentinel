@@ -1,5 +1,5 @@
 """
-syscoind JSONRPC interface
+martkistd JSONRPC interface
 """
 import sys
 import os
@@ -13,7 +13,7 @@ from decimal import Decimal
 import time
 
 
-class SyscoinDaemon():
+class MartkistDaemon():
     def __init__(self, **kwargs):
         host = kwargs.get('host', '127.0.0.1')
         user = kwargs.get('user')
@@ -22,7 +22,7 @@ class SyscoinDaemon():
 
         self.creds = (user, password, host, port)
 
-        # memoize calls to some syscoind methods
+        # memoize calls to some martkistd methods
         self.governance_info = None
         self.gobject_votes = {}
 
@@ -31,10 +31,10 @@ class SyscoinDaemon():
         return AuthServiceProxy("http://{0}:{1}@{2}:{3}".format(*self.creds))
 
     @classmethod
-    def from_syscoin_conf(self, syscoin_dot_conf):
-        from syscoin_config import SyscoinConfig
-        config_text = SyscoinConfig.slurp_config_file(syscoin_dot_conf)
-        creds = SyscoinConfig.get_rpc_creds(config_text, config.network)
+    def from_martkist_conf(self, martkist_dot_conf):
+        from martkist_config import MartkistConfig
+        config_text = MartkistConfig.slurp_config_file(martkist_dot_conf)
+        creds = MartkistConfig.get_rpc_creds(config_text, config.network)
 
         creds[u'host'] = config.rpc_host
 
@@ -50,7 +50,7 @@ class SyscoinDaemon():
         return [Masternode(k, v) for (k, v) in mnlist.items()]
 
     def get_current_masternode_vin(self):
-        from syscoinlib import parse_masternode_status_vin
+        from martkistlib import parse_masternode_status_vin
 
         my_vin = None
 
@@ -129,7 +129,7 @@ class SyscoinDaemon():
     # "my" votes refers to the current running masternode
     # memoized on a per-run, per-object_hash basis
     def get_my_gobject_votes(self, object_hash):
-        import syscoinlib
+        import martkistlib
         if not self.gobject_votes.get(object_hash):
             my_vin = self.get_current_masternode_vin()
             # if we can't get MN vin from output of `masternode status`,
@@ -141,7 +141,7 @@ class SyscoinDaemon():
 
             cmd = ['gobject', 'getcurrentvotes', object_hash, txid, vout_index]
             raw_votes = self.rpc_command(*cmd)
-            self.gobject_votes[object_hash] = syscoinlib.parse_raw_votes(raw_votes)
+            self.gobject_votes[object_hash] = martkistlib.parse_raw_votes(raw_votes)
 
         return self.gobject_votes[object_hash]
 
@@ -165,11 +165,11 @@ class SyscoinDaemon():
         return (current_height >= maturity_phase_start_block)
 
     def we_are_the_winner(self):
-        import syscoinlib
+        import martkistlib
         # find the elected MN vin for superblock creation...
         current_block_hash = self.current_block_hash()
         mn_list = self.get_masternodes()
-        winner = syscoinlib.elect_mn(block_hash=current_block_hash, mnlist=mn_list)
+        winner = martkistlib.elect_mn(block_hash=current_block_hash, mnlist=mn_list)
         my_vin = self.get_current_masternode_vin()
 
         # print "current_block_hash: [%s]" % current_block_hash
@@ -179,7 +179,7 @@ class SyscoinDaemon():
         return (winner == my_vin)
 
     def estimate_block_time(self, height):
-        import syscoinlib
+        import martkistlib
         """
         Called by block_height_to_epoch if block height is in the future.
         Call `block_height_to_epoch` instead of this method.
@@ -192,7 +192,7 @@ class SyscoinDaemon():
         if (diff < 0):
             raise Exception("Oh Noes.")
 
-        future_seconds = syscoinlib.blocks_to_seconds(diff)
+        future_seconds = martkistlib.blocks_to_seconds(diff)
         estimated_epoch = int(time.time() + future_seconds)
 
         return estimated_epoch
@@ -220,7 +220,7 @@ class SyscoinDaemon():
     @property
     def has_sentinel_ping(self):
         getinfo = self.rpc_command('getinfo')
-        return (getinfo['protocolversion'] >= config.min_syscoind_proto_version_with_sentinel_ping)
+        return (getinfo['protocolversion'] >= config.min_martkistd_proto_version_with_sentinel_ping)
 
     def ping(self):
         self.rpc_command('sentinelping', config.sentinel_version)

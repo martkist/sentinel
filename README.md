@@ -1,12 +1,12 @@
-# Syscoin Sentinel
+# Martkist Sentinel
 
-An all-powerful toolset for Syscoin.
+An all-powerful toolset for Martkist.
 
-[![Build Status](https://travis-ci.org/syscoin/sentinel.svg?branch=master)](https://travis-ci.org/syscoin/sentinel)
+[![Build Status](https://travis-ci.org/martkist/sentinel.svg?branch=master)](https://travis-ci.org/martkist/sentinel)
 
-Sentinel is an autonomous agent for persisting, processing and automating Syscoin governance objects and tasks, and for expanded functions in the upcoming Syscoin 3.0 release
+Sentinel is an autonomous agent for persisting, processing and automating Martkist governance objects and tasks, and for expanded functions in the upcoming Martkist 3.0 release
 
-Sentinel is implemented as a Python application that binds to a local version of syscoind instance on each Syscoin Masternode.
+Sentinel is implemented as a Python application that binds to a local version of martkistd instance on each Martkist Masternode.
 
 This guide covers installing Sentinel onto an existing Masternode in Ubuntu 14.04 / 16.04.
 
@@ -23,15 +23,15 @@ Update system packages and ensure virtualenv is installed:
     $ sudo apt-get update
     $ sudo apt-get -y install python-virtualenv
 
-Make sure the local Syscoin daemon running is at least version 3.0
+Make sure the local Martkist daemon running is at least version 3.0
 
-    $ syscoin-cli getinfo | grep version
+    $ martkist-cli getinfo | grep version
 
 ### 2. Install Sentinel
 
 Clone the Sentinel repo and install Python dependencies.
 
-    $ git clone https://github.com/syscoin/sentinel.git && cd sentinel
+    $ git clone https://github.com/martkist/sentinel.git && cd sentinel
     $ virtualenv ./venv
     $ ./venv/bin/pip install -r requirements.txt
 
@@ -51,13 +51,13 @@ Test the config by runnings all tests from the sentinel folder you cloned into
 
     $ ./venv/bin/py.test ./test
 
-With all tests passing and crontab setup, Sentinel will stay in sync with syscoind and the installation is complete
+With all tests passing and crontab setup, Sentinel will stay in sync with martkistd and the installation is complete
 
 ## Configuration
 
-An alternative (non-default) path to the `syscoin.conf` file can be specified in `sentinel.conf`:
+An alternative (non-default) path to the `martkist.conf` file can be specified in `sentinel.conf`:
 
-    syscoin_conf=/path/to/syscoin.conf
+    martkist_conf=/path/to/martkist.conf
 
 ## Troubleshooting
 
@@ -67,11 +67,11 @@ To view debug output, set the `SENTINEL_DEBUG` environment variable to anything 
 
 ## Contributing
 
-Please follow the [SyscoinCore guidelines for contributing](https://github.com/syscoin/syscoin/blob/master/CONTRIBUTING.md).
+Please follow the [MartkistCore guidelines for contributing](https://github.com/martkist/martkist/blob/master/CONTRIBUTING.md).
 
 Specifically:
 
-* [Contributor Workflow](https://github.com/syscoin/syscoin/blob/master/CONTRIBUTING.md#contributor-workflow)
+* [Contributor Workflow](https://github.com/martkist/martkist/blob/master/CONTRIBUTING.md#contributor-workflow)
 
     To contribute a patch, the workflow is as follows:
 
@@ -85,4 +85,4 @@ Specifically:
 
 ### License
 
-Released under the MIT license, under the same terms as SyscoinCore itself. See [LICENSE](LICENSE) for more info.
+Released under the MIT license, under the same terms as MartkistCore itself. See [LICENSE](LICENSE) for more info.

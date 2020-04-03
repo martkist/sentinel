@@ -56,23 +56,23 @@ def is_database_correctly_configured():
     return configured
 
 
-def has_syscoin_conf():
+def has_martkist_conf():
     import config
     import io
 
-    valid_syscoin_conf = False
+    valid_martkist_conf = False
 
-    # ensure syscoin_conf exists & readable
+    # ensure martkist_conf exists & readable
     #
-    # if not, print a message stating that Syscoin Core must be installed and
-    # configured, including JSONRPC access in syscoin.conf
+    # if not, print a message stating that Martkist Core must be installed and
+    # configured, including JSONRPC access in martkist.conf
     try:
-        f = io.open(config.syscoin_conf)
-        valid_syscoin_conf = True
+        f = io.open(config.martkist_conf)
+        valid_martkist_conf = True
     except IOError as e:
         print(e)
 
-    return valid_syscoin_conf
+    return valid_martkist_conf
 
 
 # === begin main
@@ -94,8 +94,8 @@ def main():
         print("Please ensure correct database configuration.")
         sys.exit(1)
 
-    if not has_syscoin_conf():
-        print("SyscoinCore must be installed and configured, including JSONRPC access in syscoin.conf")
+    if not has_martkist_conf():
+        print("MartkistCore must be installed and configured, including JSONRPC access in martkist.conf")
         sys.exit(1)
 
 

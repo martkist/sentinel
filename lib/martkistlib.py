@@ -12,7 +12,7 @@ from misc import printdbg, epoch2str
 import time
 
 
-def is_valid_syscoin_address(address, network='mainnet'):
+def is_valid_martkist_address(address, network='mainnet'):
     # Only public key addresses are allowed
     # A valid address is a RIPEMD-160 hash which contains 20 bytes
     # Prior to base58 encoding 1 version byte is prepended and
@@ -20,8 +20,8 @@ def is_valid_syscoin_address(address, network='mainnet'):
     # base58 encoded bytes should be 25.  This means the number of characters
     # in the encoding should be about 34 ( 25 * log2( 256 ) / log2( 58 ) ).
 
-    # Support syscoin address (T-address on testnet and S-address on mainnet)
-    syscoin_version = 65 if network == 'testnet' else 63
+    # Support martkist address (T-address on testnet and S-address on mainnet)
+    martkist_version = 65 if network == 'testnet' else 63
 
     # Support bitcoin address (m-address or n-address on testnet and 1-address on mainnet)
     bitcoin_version = 111 if network == 'testnet' else 0
@@ -37,10 +37,10 @@ def is_valid_syscoin_address(address, network='mainnet'):
         decoded = base58.b58decode_chk(address)
         address_version = ord(decoded[0:1])
     except:
-        # rescue from exception, not a valid Syscoin address
+        # rescue from exception, not a valid Martkist address
         return False
 
-    if (address_version != syscoin_version and address_version != bitcoin_version):
+    if (address_version != martkist_version and address_version != bitcoin_version):
         return False
 
     return True
@@ -168,7 +168,7 @@ def create_superblock(proposals, event_block_height, budget_max, sb_epoch_time, 
             payment_amounts='|'.join([pd['amount'] for pd in payments]),
             proposal_hashes='|'.join([pd['proposal'] for pd in payments])
         )
-        data_size = len(sb_temp.syscoind_serialise())
+        data_size = len(sb_temp.martkistd_serialise())
 
         if data_size > maxgovobjdatasize:
             printdbg("MAX_GOVERNANCE_OBJECT_DATA_SIZE limit reached!")
@@ -199,25 +199,25 @@ def create_superblock(proposals, event_block_height, budget_max, sb_epoch_time, 
 
 
 # shims 'til we can fix the JSON format
-def SHIM_serialise_for_syscoind(sentinel_hex):
+def SHIM_serialise_for_martkistd(sentinel_hex):
     from models import GOVOBJ_TYPE_STRINGS
 
     # unpack
     obj = deserialise(sentinel_hex)
 
-    # shim for syscoind
+    # shim for martkistd
     govtype_string = GOVOBJ_TYPE_STRINGS[obj['type']]
 
-    # superblock => "trigger" in syscoind
+    # superblock => "trigger" in martkistd
     if govtype_string == 'superblock':
         govtype_string = 'trigger'
 
-    # syscoind expects an array (will be deprecated)
+    # martkistd expects an array (will be deprecated)
     obj = [(govtype_string, obj,)]
 
     # re-pack
-    syscoind_hex = serialise(obj)
-    return syscoind_hex
+    martkistd_hex = serialise(obj)
+    return martkistd_hex
 
 
 # convenience
@@ -241,7 +241,7 @@ def did_we_vote(output):
     err_msg = ''
 
     try:
-        detail = output.get('detail').get('syscoin.conf')
+        detail = output.get('detail').get('martkist.conf')
         result = detail.get('result')
         if 'errorMessage' in detail:
             err_msg = detail.get('errorMessage')
