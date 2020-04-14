@@ -7,7 +7,7 @@ sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../
 
 @pytest.fixture
 def valid_martkist_address(network='mainnet'):
-    return 'TSFMFYoPjz9xg9fUYXxxWEeEDCQ3qSH1aJ' if (network == 'testnet') else 'SZKgggyzWqmJFcafSyLykhsYKfuQ13idQu'
+    return 'TSFMFYoPjz9xg9fUYXxxWEeEDCQ3qSH1aJ' if (network == 'testnet') else 'MHbj5yydpLnxBeZv5s2dwCsE3nYUaG5m41'
 
 
 @pytest.fixture
