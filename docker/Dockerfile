@@ -10,5 +10,9 @@ WORKDIR /sentinel
 RUN virtualenv ./venv
 RUN ./venv/bin/pip install -r requirements.txt
 
-COPY cronjobs /etc/crontabs/root
-ENTRYPOINT ["cron", "-f"]
+COPY cronjobs /var/spool/cron/crontabs/root
+RUN chmod 0600 /var/spool/cron/crontabs/root
+
+COPY entrypoint.sh /sentinel/entrypoint.sh
+RUN chmod +x /sentinel/entrypoint.sh
+ENTRYPOINT ["/sentinel/entrypoint.sh"]
