@@ -10,7 +10,7 @@ default_sentinel_config = os.path.normpath(
 )
 sentinel_config_file = os.environ.get('SENTINEL_CONFIG', default_sentinel_config)
 sentinel_cfg = MartkistConfig.tokenize(sentinel_config_file)
-sentinel_version = "1.1.1"
+sentinel_version = "1.1.2"
 min_martkistd_proto_version_with_sentinel_ping = 70221
 
 
@@ -34,7 +34,8 @@ def get_network():
 
 
 def get_rpchost():
-    return sentinel_cfg.get('rpchost', '127.0.0.1')
+    rpchost = os.environ.get('SENTINEL_RPCHOST', "127.0.0.1")
+    return sentinel_cfg.get('rpchost', rpchost)
 
 
 def sqlite_test_db_name(sqlite_file_path):
