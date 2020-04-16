@@ -1,1 +1,1 @@
-docker build -t martkist/sentinel:latest .
+docker build --no-cache -t martkist/sentinel:latest .
